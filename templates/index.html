@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Consumption Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="#faq">FAQ</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="upload-section">
+            <h1>Energy Consumption Prediction</h1>
+            <p>Please enter the data to generate the Energy Consumption Prediction.</p>
+
+            <form id="input-form">
+                <label for="voltage">Voltage (V):</label>
+                <input type="number" id="voltage" name="voltage" step="any" required>
+
+
+                <label for="current">Current (A):</label>
+                <input type="number" id="current" name="current" step="any" required>
+
+                
+
+                <label for="power_factor">Power factor:</label>
+                <input type="number" id="power factor" name="power factor" step="any" required>
+
+
+                <label for="temperature">Temperature (F):</label>
+                <input type="number" id="temperature" name="temperature" step="any" required>
+
+
+
+
+                <button type="button" onclick="resetForm()">Clear</button>
+                <button type="submit">Submit</button>
+            </form>
+
+            <div id="loading" style="display: none;">Processing...</div>
+            <div id="result"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Project by [Group-7]</p>
+        <p>Created by: [Yasiru Bhashana]</p>
+    </footer>
+
+    <script>
+        document.getElementById('input-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            document.getElementById('loading').style.display = 'block';
+
+            fetch('/predict', {
+                method: 'POST',
+                body: new URLSearchParams(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                if (data.error) {
+                    document.getElementById('result').textContent = `Error: ${data.error}`;
+                } else {
+                    document.getElementById('result').innerHTML = `<strong style="font-size: larger;">Energy Consumption:  ${data.predicted_bill.toFixed(2)} kWh</strong>`;
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                console.error('Error:', error);
+                document.getElementById('result').textContent = 'An error occurred. Please try again.';
+            });
+        });
+         
+        // Script to reset form
+        function resetForm() {
+            document.getElementById('input-form').reset();
+            document.getElementById('result').textContent = '';
+        }
+
+
+    </script>
+</body>
+</html>
